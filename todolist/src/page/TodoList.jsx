@@ -1,11 +1,11 @@
 import React from 'react'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import styled from 'styled-components';
 
 function TodoList(){
-    const [list, setList] = useState('')    // 상수(바뀌지 않는 값)
+    const [list, setList] = useState('')    // 상수(바뀌지 않는 값), 내가 작성한 값
     const [item, setItem] = useState([])   // item의 초기값을 배열로 지정
-    let count = 0;  // 변수(바뀌는 값)
+    let count = useRef(0);  // 변수(바뀌는 값) useRef == 새로 랜더링이 되더라도 해당 변수는 최근의 값을 참조
 
     const onChangeList = (e) => {
         setList(e.target.value)
@@ -13,18 +13,24 @@ function TodoList(){
 
     const onClickList = () => {
         const todo = {
-            id: count,  // id(객체 구분)
+            id: count.current,  // id(객체 구분)
             content: list   // inputtodo 안에서 작성한 todo 내용
         };
         setItem(item.concat(todo));     // item 추가
         setList('');
+        count.current += 1;
     }
+
+    const onClickDelete = (id) => {
+        const saveItem = item.filter(el=> el.id !== id) // el == 배열의 순서
+        setItem(saveItem);
+    };
 
     return(
         <Container>
             <Title>TodoList</Title>
             <MainTodo>  {/*  */}
-                { item.map(({id, content})=><ContentDiv key={id}>{content}</ContentDiv>)}   
+                { item.map(({id, content})=><ContentDiv onClick={()=> onClickDelete(id)} key={id}>{content}</ContentDiv>)}   
                     {/* {id, content} == 하나의 요소로 ContentDiv의 키값(id)과 차일드 값(content), == const todo 값이라고 생각 */}
             </MainTodo>
             <AddDiv>    {/* 추가하는 부분 */}
